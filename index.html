@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@王铁牛 的Alpha积分计算器</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .header-link {
+            color: #1da1f2;
+            text-decoration: none;
+        }
+        .header-link:hover {
+            text-decoration: underline;
+        }
+        .input-section {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        input {
+            width: 60px;
+            padding: 5px;
+            text-align: center;
+        }
+        .past-row {
+            background-color: #fffde7;
+        }
+        .future-row {
+            background-color: #e8f5e9;
+        }
+        .today-row {
+            background-color: #bbdefb;
+            font-weight: bold;
+        }
+        .total-cell {
+            font-weight: bold;
+        }
+        .instructions {
+            margin: 15px 0;
+            padding: 10px;
+            background-color: #e3f2fd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1><a href="https://x.com/tieniu995" class="header-link">@王铁牛</a> 的Alpha积分计算器</h1>
+    
+    <div class="instructions">
+        <p>从第16天（今天）开始计算15天滚动总分</p>
+        <p>计算公式：当日总分 = 前15天的（获得积分 - 消耗积分）总和</p>
+    </div>
+    
+    <div class="input-section">
+        <table id="daysTable">
+            <thead>
+                <tr>
+                    <th>天数</th>
+                    <th>日期</th>
+                    <th>获得积分</th>
+                    <th>消耗积分</th>
+                    <th>15天总分</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- 表格内容将通过JavaScript动态生成 -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // 初始化表格
+        document.addEventListener('DOMContentLoaded', function() {
+            const daysTable = document.querySelector('#daysTable tbody');
+            
+            // 固定第16天为今天（5月28日）
+            const day16Date = new Date(2023, 4, 28); // 月份0-11，5月是4
+            
+            // 创建31天的行（1-31天）
+            for (let i = 0; i < 31; i++) {
+                const dayNum = i + 1;
+                const date = new Date(day16Date);
+                date.setDate(day16Date.getDate() + (dayNum - 16)); // 第16天是今天
+                
+                const row = document.createElement('tr');
+                if (dayNum < 16) {
+                    row.className = 'past-row';
+                } else if (dayNum === 16) {
+                    row.className = 'today-row';
+                } else {
+                    row.className = 'future-row';
+                }
+                
+                // 天数单元格
+                const dayNumCell = document.createElement('td');
+                dayNumCell.textContent = dayNum;
+                
+                // 日期单元格
+                const dateCell = document.createElement('td');
+                dateCell.textContent = formatChineseDate(date);
+                
+                // 获得积分
+                const earnedCell = document.createElement('td');
+                const earnedInput = document.createElement('input');
+                earnedInput.type = 'number';
+                earnedInput.min = '0';
+                earnedInput.value = '0';
+                earnedInput.id = `earned-${dayNum}`;
+                earnedInput.addEventListener('input', calculateTotals);
+                earnedCell.appendChild(earnedInput);
+                
+                // 消耗积分
+                const spentCell = document.createElement('td');
+                const spentInput = document.createElement('input');
+                spentInput.type = 'number';
+                spentInput.min = '0';
+                spentInput.value = '0';
+                spentInput.id = `spent-${dayNum}`;
+                spentInput.addEventListener('input', calculateTotals);
+                spentCell.appendChild(spentInput);
+                
+                // 15天总分
+                const totalCell = document.createElement('td');
+                totalCell.id = `total-${dayNum}`;
+                totalCell.className = 'total-cell';
+                totalCell.textContent = dayNum >= 16 ? '0' : '-';
+                
+                row.appendChild(dayNumCell);
+                row.appendChild(dateCell);
+                row.appendChild(earnedCell);
+                row.appendChild(spentCell);
+                row.appendChild(totalCell);
+                
+                daysTable.appendChild(row);
+            }
+            
+            // 初始计算
+            calculateTotals();
+        });
+        
+        // 格式化日期为M月D日
+        function formatChineseDate(date) {
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            return `${month}月${day}日`;
+        }
+        
+        // 计算所有积分
+        function calculateTotals() {
+            // 从第16天开始计算15天滚动总分
+            for (let dayNum = 16; dayNum <= 31; dayNum++) {
+                let total = 0;
+                const startDay = dayNum - 15; // 前15天
+                
+                // 计算前15天的（获得-消耗）总和
+                for (let i = startDay; i < dayNum; i++) {
+                    const earned = parseInt(document.getElementById(`earned-${i}`).value) || 0;
+                    const spent = parseInt(document.getElementById(`spent-${i}`).value) || 0;
+                    total += (earned - spent);
+                }
+                
+                document.getElementById(`total-${dayNum}`).textContent = total;
+            }
+        }
+    </script>
+</body>
+</html>
