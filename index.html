@@ -1,6 +1,61 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+    <style>
+        body {
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            margin: 40px;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+        h1, h2 {
+            color: #1a73e8;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            max-width: 960px;
+            margin: auto;
+        }
+        .day-label {
+            font-weight: bold;
+            color: #444;
+        }
+        input[type="number"] {
+            width: 80px;
+            padding: 6px;
+            margin: 4px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .today {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+        }
+        .future {
+            background-color: #e3f2fd;
+        }
+        .past {
+            background-color: #e8f5e9;
+        }
+    
+    input[type="text"] {
+        width: 100px;
+        padding: 6px;
+        margin: 4px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+    .totals {
+        margin-top: 30px;
+        padding: 15px;
+        background-color: #f0f4f8;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+    }
+    </style>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@王铁牛 的Alpha积分计算器</title>
@@ -66,13 +121,30 @@
             background-color: #e3f2fd;
             border-radius: 4px;
         }
+    
+    input[type="text"] {
+        width: 100px;
+        padding: 6px;
+        margin: 4px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+    .totals {
+        margin-top: 30px;
+        padding: 15px;
+        background-color: #f0f4f8;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+    }
     </style>
 </head>
 <body>
     <h1><a href="https://x.com/tieniu995" class="header-link">@王铁牛</a> 的Alpha积分计算器</h1>
     
     <div class="instructions">
-        <p>输入过去15天的积分明细，获得当日积分。输入未来积分明细，规划刷多少分以及如何领取空投收益最高</p>
+        <p>录入历史数据 - 填写过去15天的积分明细<br>
+实时计算积分 - 系统自动计算当前有效积分<br>
+模拟未来收益 - 输入预期积分，制定最佳领取方案</p>
         <p>计算公式：当日总分 = 前15天的（获得积分 - 消耗积分）总和</p>
     </div>
     
@@ -99,7 +171,15 @@
             const daysTable = document.querySelector('#daysTable tbody');
             
             // 固定第16天为今天（5月28日）
-            const day16Date = new Date(2023, 4, 28); // 月份0-11，5月是4
+            
+function getBeijingToday() {
+    const now = new Date();
+    const utc8Offset = 8 * 60;
+    const localOffset = now.getTimezoneOffset();
+    return new Date(now.getTime() + (utc8Offset + localOffset) * 60000);
+}
+const day16Date = getBeijingToday();
+ // 月份0-11，5月是4
             
             // 创建31天的行（1-31天）
             for (let i = 0; i < 31; i++) {
@@ -187,6 +267,25 @@
                 document.getElementById(`total-${dayNum}`).textContent = total;
             }
         }
+    
+    function updateTotals() {
+        let totalCost = 0;
+        let totalProfit = 0;
+
+        document.querySelectorAll(".cost").forEach(input => {
+            let val = parseFloat(input.value);
+            if (!isNaN(val)) totalCost += val;
+        });
+
+        document.querySelectorAll(".profit").forEach(input => {
+            let val = parseFloat(input.value);
+            if (!isNaN(val)) totalProfit += val;
+        });
+
+        document.getElementById("totalCost").innerText = totalCost.toFixed(2);
+        document.getElementById("totalProfit").innerText = totalProfit.toFixed(2);
+    }
     </script>
+    
 </body>
 </html>
